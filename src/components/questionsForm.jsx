@@ -2,21 +2,18 @@ import { Component } from "react";
 
 // jsx class component
 class QuestionsForm extends Component {
-  state = { type: "", title: "", errors: {}, correctAns: "", answer1: "", answer2: "", answer3: "", answer4: "", };
+  state = { type: "", title: "", errors: {}, correctAns: "", answer1: "", answer2: "", answer3: "", answer4: "", tags: []};
 
-  handleType = async (e) => {
-    await this.setState({ type: e.currentTarget.value, errors: {} });
-    console.log(this.state.type)
+  handleType = (e) => {
+    this.setState({ type: e.currentTarget.value, errors: {} });
   }
 
   handleChange = (e) => {
     this.setState({ title: e.currentTarget.value, errors: {} });
   };
 
-  handleCorrectAnswerChange = async (e) => {
-    //if(e.currentTarget.value.trim() === "") errors.answer = "No answer!";
-    await this.setState({ correctAns: e.currentTarget.value, errors: {} });
-    console.log(this.state.correctAns);
+  handleCorrectAnswerChange = (e) => {
+    this.setState({ correctAns: e.currentTarget.value, errors: {} });
   }
 
   handleAnswer1Change = (e) => {
@@ -35,6 +32,12 @@ class QuestionsForm extends Component {
     this.setState({ answer4: e.currentTarget.value, errors: {} });
   }
 
+  handleTags = (e) => {
+    const stringToArr = e.currentTarget.value;
+    const arr = stringToArr.split(',');
+    this.setState({ tags: arr, errors: {} });
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
 
@@ -42,33 +45,45 @@ class QuestionsForm extends Component {
     this.setState({ errors: errors || {} });
     if (errors) return;
 
-    const questionToAdd = { Title: this.state.title, CorectAns: this.state.correctAns, Answer1: this.state.answer1, Answer2: this.state.answer2, Answer3: this.state.answer3, Answer4: this.state.answer4 };
+    const questionToAdd = { Type: this.state.type, Title: this.state.title, CorectAns: this.state.correctAns, Answer1: this.state.answer1, Answer2: this.state.answer2, Answer3: this.state.answer3, Answer4: this.state.answer4, Tags: this.state.tags };
     this.props.onAddQuestion(questionToAdd);
+    this.setState({ type: "" });
     this.setState({ title: "" });
+    this.setState({ answer1: "" });
+    this.setState({ answer2: "" });
+    this.setState({ answer3: "" });
+    this.setState({ answer4: "" });
+    this.setState({ correctAns: "" });
+    this.setState({ tags: [] });
   };
 
   validate = () => {
     const errors = {};
+    if (this.state.type.trim() === "") errors.type = "Question type is required."
     if (this.state.title.trim() === "") errors.title = "Title is required.";
     if (this.state.answer1.trim() === "") errors.answer1 = "Answer 1 is required.";
     if (this.state.answer2.trim() === "") errors.answer2 = "Answer 2 is required.";
     if (this.state.answer3.trim() === "") errors.answer3 = "Answer 3 is required.";
     if (this.state.answer4.trim() === "") errors.answer4 = "Answer 4 is required.";
     if (this.state.correctAns.trim() === "") errors.correctAns = "You didnt pick a corrent answer.";
+    if(this.state.tags === null) errors.tags = "You didnt enter tags.";
     return Object.keys(errors).length === 0 ? null : errors;
   };
 
   render() {
-    const { type, title, errors, answer1, answer2, answer3, answer4 } = this.state;
+    const { type, title, errors, answer1, answer2, answer3, answer4, tags } = this.state;
     return (
       <div>
         <form onSubmit={this.handleSubmit}>
           <div className="form-group space">
             <label htmlFor="type">Question type:</label>
-            <select id="type" className="input form-control" onChange={this.handleType}>
-              <option value={type} >Single answer option</option>
-              <option value={type}>Multible answer option</option>
+            <select id="type" className="input form-control" onChange={this.handleType} value={type}>
+              <option value="Single" >Single answer option</option>
+              <option value="Multible">Multible answer option</option>
             </select>
+            {errors.type && (
+              <div className="alert alert-danger">{errors.type}</div>
+            )}
           </div>
           <div className="form-group space">
             <label htmlFor="title">Title: </label>
@@ -162,6 +177,19 @@ class QuestionsForm extends Component {
           {errors.correctAns && (
             <div className="alert alert-danger">{errors.correctAns}</div>
           )}
+          <div className="form-group space">
+            <label htmlFor="tags">Tags: </label>
+            <input
+              value={tags}
+              onChange={this.handleTags}
+              id="tags"
+              type="text"
+              className="input form-control"
+            />
+            {errors.tags && (
+              <div className="alert alert-danger">{errors.tags}</div>
+            )}
+          </div>
           <button className="btn btn-primary btn-sm">Add question</button>
         </form>
       </div>

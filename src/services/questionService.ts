@@ -2,7 +2,9 @@ import http from "./httpService";
 
 export interface Question {
   Id: number;
+  Type: string;
   Title: string;
+  Tags: [];
 }
 
 const serverRoute = "/api/Questions/";
@@ -15,6 +17,10 @@ const QuestionService = {
   async addQuestion(question: any) {
     return await http.post(serverRoute + "addQuestion", question);
   },
+
+  async removeQuestion(question: any) {
+    return await http.post(serverRoute + "removeQuestion", question);
+  }
 };
 
 export default QuestionService;
